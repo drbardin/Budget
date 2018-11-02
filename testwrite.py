@@ -23,8 +23,6 @@ adding_incomes = False
 ex_cnt = 0
 in_cnt = 0
 balance = 0
-y = {}
-z = {}
 with open('saved_data.txt') as f:
     for line in f:
         if '[balance]' in line:

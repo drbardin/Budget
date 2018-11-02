@@ -23,6 +23,7 @@ class BudgetFunctions:
         print "  4  - Print Income             10  - Print Available Functions"
         print "  5  - Add Expense              11  - Print This Month's Calendar"
         print "  6  - Print Expenses           12  - Exit"
+        print "                                13  - Print Month's Budget"
         print
 
     def set_balance(self):
@@ -70,6 +71,51 @@ class BudgetFunctions:
         for k, v in self.expenses.iteritems():
             print "   {}     ${}".format(v['day'], v['amount'])
 
+    def save_to_file(self):
+        path = raw_input("Please enter the full path to the data file:  ")
+        with open(path, 'w+') as f:
+            f.write('[balance]\n')
+            f.write(str(self.balance) + '\n')
+             f.write('[expenses]\n')
+            for i in self.expenses:
+                f.write("{}|{}\n".format(self.expenses[i]['day'], self.expenses[i]['amount']))
+            f.write('[incomes]\n')
+            for j in self.income:
+                f.write("{}|{}\n".format(self.income[j]['day'], self.income[j]['amount']))
+
+    def load_from_file(self):
+        path = raw_input("Please enter the full path to the data file:  ")
+        adding_balance = False
+        adding_expenses = False
+        adding_incomes = False
+        ex_cnt = 0
+        in_cnt = 0
+        balance = 0
+        with open(path) as f:
+            for line in f:
+                if '[balance]' in line:
+                    adding_balance = True
+                elif '[expenses]' in line:
+                    adding_balance = False
+                    adding_expenses = True
+                elif '[incomes]' in line:
+                    adding_expenses = False
+                    adding_incomes = True
+                elif adding_balance:
+                    self.balance = Decimal(line)
+                elif adding_expenses:
+                    toks = line.split('|')
+                    self.expenses[ex_cnt] = {'day': int(toks[0]), 'amount': Decimal(toks[1])}
+                    ex_cnt += 1
+                elif adding_incomes:
+                    toks = line.split('|')
+                    self.income[in_cnt] = {'day': int(toks[0]), 'amount': Decimal(toks[1])}
+                    in_cnt += 1
+
+    def print_daily_budget(self):
+        # Calendar(6) to start week with Sunday
+        for d in calendar.Calendar(6).itermonthdates:
+
 
 def main():
     funcs = BudgetFunctions()
@@ -107,15 +153,17 @@ def main():
         elif choice == 7:
             print "Not implemented yet."
         elif choice == 8:
-            print "Not implemented yet."
+            funcs.save_to_file()
         elif choice == 9:
-            print "Not implemented yet."
+            funcs.load_from_file()
         elif choice == 10:
             funcs.print_functions()
         elif choice == 11:
             funcs.print_calendar()
         elif choice == 12:
             end_program = True
+        elif choice == 13:
+            funcs.print_daily_budget()
         else:
             print "No."
 
