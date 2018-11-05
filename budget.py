@@ -76,7 +76,7 @@ class BudgetFunctions:
         with open(path, 'w+') as f:
             f.write('[balance]\n')
             f.write(str(self.balance) + '\n')
-             f.write('[expenses]\n')
+            f.write('[expenses]\n')
             for i in self.expenses:
                 f.write("{}|{}\n".format(self.expenses[i]['day'], self.expenses[i]['amount']))
             f.write('[incomes]\n')
@@ -112,9 +112,38 @@ class BudgetFunctions:
                     self.income[in_cnt] = {'day': int(toks[0]), 'amount': Decimal(toks[1])}
                     in_cnt += 1
 
+        # update counters
+        self.income_counter = len(self.income)
+        self.expenses_counter = len(self.expenses)
+
+    def check_for_income_by_day(self, day):
+        all_income = Decimal(0.00)
+        for i in self.income:
+            if day == self.income[i]['day']:
+                all_income += self.income[i]['amount']
+
+        return all_income
+
+    def check_for_expenses_by_day(self, day):
+        all_expenses = Decimal(0.00)
+        for i in self.expenses:
+            if day == self.expenses[i]['day']:
+                all_expenses += self.expenses[i]['amount']
+
+        return all_expenses
+
     def print_daily_budget(self):
+        running_balance = self.balance
         # Calendar(6) to start week with Sunday
-        for d in calendar.Calendar(6).itermonthdates:
+        print " day           balance      income  expenses"
+        for d in calendar.Calendar(6).itermonthdays(self.year, self.month):
+            if d == 0:
+                continue
+            inc = self.check_for_income_by_day(d)
+            exp = self.check_for_expenses_by_day(d)
+            running_balance = running_balance + inc
+            running_balance = running_balance - exp
+            print "{}/{:<4}        {:>6}{:>8}{:>8} ".format(self.month, d, running_balance, inc, exp)
 
 
 def main():
